@@ -25,7 +25,7 @@ export default function RootLayout({ children }: LayoutProps<"/">): JSX.Element 
 	return (
 		<html
 			lang="en"
-			className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+			className={`bg-background text-foreground h-full antialiased ${geistSans.variable} ${geistMono.variable}`}
 		>
 			<body className="min-h-full flex flex-col">
 				{children}
