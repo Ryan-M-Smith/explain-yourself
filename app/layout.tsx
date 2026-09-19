@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { JSX } from "react";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -28,6 +30,9 @@ export default function RootLayout({ children }: LayoutProps<"/">): JSX.Element 
 			<body className="min-h-full flex flex-col">
 				{children}
 			</body>
+
+			<Analytics/>
+			<SpeedInsights/>
 		</html>
 	);
 }
