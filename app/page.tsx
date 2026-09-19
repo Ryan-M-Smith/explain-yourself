@@ -1,3 +1,10 @@
+//
+// Filename: page.tsx
+// Route: /
+// Copyright (c) 2026 Team Vibes
+// Authors: Ethan Gao, Nathan Smith, Ryan Smith, and Tianyi Wang
+//
+
 import Image from "next/image";
 
 export default function Home() {

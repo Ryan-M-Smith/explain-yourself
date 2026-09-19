@@ -1,3 +1,10 @@
+//
+// Filename: layout.tsx
+// Description: Site-wide layout
+// Copyright (c) 2026 Team Vibes
+// Authors: Ethan Gao, Nathan Smith, Ryan Smith, and Tianyi Wang
+//
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { JSX } from "react";
