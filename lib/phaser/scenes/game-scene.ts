@@ -35,7 +35,7 @@ function removeToneTags(text: string) {
 	return text.replace(/\[[^\]]+\]\s*/g, "").replace(/"/g, "").trim();
 }
 
-const VOICE_VOLUME = 0.8;
+const VOICE_VOLUME = 1;
 const MUSIC_VOLUME = 0.1;
 
 export class GameScene extends Phaser.Scene {
@@ -506,6 +506,7 @@ export class GameScene extends Phaser.Scene {
 		this.voiceAudio?.pause();
 		this.voiceAudio = new Audio(audioUrl);
 		this.voiceAudio.preload = "auto";
+		this.voiceAudio.muted = false;
 		this.voiceAudio.volume = VOICE_VOLUME;
 		const resumeMusic = this.musicAudio !== null && !this.musicAudio.paused;
 		this.musicAudio?.pause();
@@ -574,6 +575,8 @@ export class GameScene extends Phaser.Scene {
 	private audioDebugState() {
 		return {
 			paused: this.voiceAudio?.paused,
+			volume: this.voiceAudio?.volume,
+			muted: this.voiceAudio?.muted,
 			currentTime: this.voiceAudio?.currentTime,
 			duration: this.voiceAudio?.duration,
 			readyState: this.voiceAudio?.readyState,
