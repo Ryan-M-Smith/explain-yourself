@@ -393,25 +393,12 @@ export class GameScene extends Phaser.Scene {
 			throw new Error("Nemotron returned an empty response");
 		}
 
-		const response = JSON.parse(message.content) as {
+		return JSON.parse(message.content) as {
 			npcResponse: string;
 			successDelta: number;
 			progress: GameProgress;
 			gameOver: boolean;
 		};
-
-		if (response.npcResponse.trim().startsWith("{")) {
-			try {
-				const nestedResponse = JSON.parse(response.npcResponse) as Partial<typeof response>;
-				if (typeof nestedResponse.npcResponse === "string") {
-					response.npcResponse = nestedResponse.npcResponse;
-				}
-			} catch {
-				// Keep ordinary dialogue that happens to contain braces.
-			}
-		}
-
-		return response;
 	}
 
 	private async sendAudio() {
