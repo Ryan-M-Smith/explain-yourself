@@ -61,29 +61,15 @@ export async function POST(request: NextRequest) {
 		}, { stream: false });
 
 		const message = result.choices[0]?.message;
-
-		const reasoningContent =
-			"reasoning_content" in message
-				? message.reasoning_content
-				: undefined;
-
-		const reasoningTokens =
-			result.usage?.completion_tokens_details?.reasoning_tokens;
-
-		console.log("Reasoning:", reasoningContent);
-		console.log("Reasoning tokens:", reasoningTokens);
-
-		
 		return NextResponse.json({ message });
 	} catch (error) {
 		console.error("Error fetching from Nemotron:", error);
 		const providerError = error as { status?: number; message?: string };
-		const status = providerError.status && providerError.status >= 400 && providerError.status < 600
-			? providerError.status
-			: 500;
+		const { status, message } = providerError;
+		
 		return NextResponse.json(
-			{ error: providerError.message ?? "Failed to fetch from Nemotron" },
-			{ status },
+			{ error: message ?? "Failed to fetch from Nemotron" },
+			{ status: status ?? 500 },
 		);
 	}
 }
