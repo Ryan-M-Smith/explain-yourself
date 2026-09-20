@@ -5,66 +5,86 @@
 // Authors: Ethan Gao, Nathan Smith, Ryan Smith, and Tianyi Wang
 //
 
-import type { Theme, Trait } from "@/types/types";
+import type { Role, Trait } from "@/types/types";
 
-export const themes: Theme[] = [
+export const roles: Role[] = [
 	{
 		occupation: "Bouncer",
 		location: "Club",
+		sex: "male",
+		voice: "fcKUtkdHcmtm9FSmoVEI",
 		background: "The player is attempting to gain entry into your exclusive club despite not having an invitation or being listed on the guest roster.",
 	},
 
 	{
 		occupation: "Angel Investor",
 		location: "Tech Lounge",
+		sex: "female",
+		voice: "jjHH5Uog9ASkoZHP28lh",
 		background: "The player is attempting to pitch their startup to you in the hopes of securing financial investment.",
 	},
 
 	{
 		occupation: "Night Guard",
 		location: "Museum",
+		sex: "male",
+		voice: "6l5FIY6jqEciWS9XWIBt",
 		background: "The player is attempting to access or remain inside the museum exhibits after official operating hours.",
 	},
 
 	{
 		occupation: "Professor",
 		location: "University",
+		sex: "female",
+		voice: "gWY0RXRlI1QmPQepsLJY",
 		background: "The player is attempting to discuss their academic standing and make a case for why you should award them an \"A\" despite having failed the exam.",
 	},
 
 	{
 		occupation: "Hotel Clerk",
 		location: "Hotel Lobby",
+		sex: "male",
+		voice: "c5T7LPp7BPPHdlUcb8aL",
 		background: "The player is attempting to secure an accommodation with you after being informed that the hotel has no vacancies.",
 	},
 
 	{
 		occupation: "Guard Soldier",
 		location: "Military Base",
+		sex: "female",
+		voice: "g6ZoAMrkIQHrDV3xjOkh",
 		background: "The player is attempting to pass through your security checkpoint and enter the military installation without presenting identification.",
 	},
 
 	{
 		occupation: "Landlord",
 		location: "Apartment Office",
+		sex: "male",
+		voice: "ZeNWnonn1KoouoeGdYY8",
 		background: "The player is attempting to negotiate staying in their unit after being issued an eviction notice for unpaid rent.",
 	},
 
 	{
 		occupation: "Interrogator",
 		location: "Police Station",
+		sex: "female",
+		voice: "xtLLAvXjljYI0LWnf5eC",
 		background: "The player is attempting to provide an explanation and establish their innocence to you after being brought in for questioning regarding a crime.",
 	},
 
 	{
 		occupation: "Job Interviewer",
 		location: "Corporate Office",
+		sex: "male",
+		voice: "ubAKj3cbERpE9iYS5goZ",
 		background: "The player is attempting to demonstrate their qualifications to you in order to be selected for the open role.",
 	},
 	
 	{
 		occupation: "Waiter",
 		location: "Restaurant",
+		sex: "male",
+		voice: "t9V1dZNCnzV3EXzhDAEg",
 		background: "The player is attempting to present reasons to you for why the cost of their meal should be waived.",
 	},
 ] as const;

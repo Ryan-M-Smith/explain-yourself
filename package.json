@@ -9,6 +9,7 @@
 		"lint": "eslint"
 	},
 	"dependencies": {
+		"@elevenlabs/elevenlabs-js": "^2.68.0",
 		"@heroui/react": "^3.2.6",
 		"@heroui/styles": "^3.2.6",
 		"@vercel/analytics": "^2.0.1",

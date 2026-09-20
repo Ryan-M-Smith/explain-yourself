@@ -20,10 +20,12 @@ interface ChatMLMessage {
 	content: string | ChatMLContentPart[];
 }
 
-interface Theme {
+interface Role {
 	occupation: string;
 	location: string;
 	background: string;
+	sex: "male" | "female";
+	voice: string;
 	audioPath?: string;
 }
 

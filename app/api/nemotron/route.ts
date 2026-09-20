@@ -1,6 +1,6 @@
 //
 // Filename: phaser-game.tsx
-// Description: React Phaser game component
+// Route: /api/nemotron
 // Copyright (c) 2026 Team Vibes
 // Authors: Ethan Gao, Nathan Smith, Ryan Smith, and Tianyi Wang
 //
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 		const result = await openai.chat.completions.create({
 			model: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
 			messages: context,
-			reasoning_effort: "medium",
+			reasoning_effort: "none",
 			response_format: {
 				type: "json_schema",
 				json_schema: {

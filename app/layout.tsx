@@ -5,13 +5,13 @@
 // Authors: Ethan Gao, Nathan Smith, Ryan Smith, and Tianyi Wang
 //
 
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { JSX } from "react";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -34,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">): JSX.Element 
 			lang="en"
 			className={`bg-background text-foreground h-full antialiased ${geistSans.variable} ${geistMono.variable}`}
 		>
-			<body className="min-h-full flex flex-col">
+			<body className="min-h-screen flex flex-col">
 				{children}
 			</body>
 
