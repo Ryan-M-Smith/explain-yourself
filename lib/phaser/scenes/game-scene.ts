@@ -28,7 +28,6 @@ export class GameScene extends Phaser.Scene {
 	private recorder: MicRecorder | null = null;
 	private micEnabled = false;
 	private recordingRequest: Promise<void> | null = null;
-	private openingTurnInFlight = false;
 	
 	private messages: ChatMLMessage[] = [];
 	private theme: Theme | null = null;
@@ -83,15 +82,14 @@ export class GameScene extends Phaser.Scene {
 			}
 		];
 
-		console.log(this.messages);
-
 		this.recorder = new MicRecorder({
 			sampleRate: 16_000,
 			samplesPerChunk: 1_024,
 		});
+		void this.requestMic();
 
-		void this.requestMicrophonePermission();
-		void this.sendOpeningTurn();
+		this.input.keyboard?.on("keydown-SPACE", this.openMic, this);
+		this.input.keyboard?.on("keyup-SPACE", this.closeMic, this);
 		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.destroyRecorder, this);
 	}
 
@@ -109,8 +107,17 @@ export class GameScene extends Phaser.Scene {
 		this.gameState.progress = progress;
 	}
 
+	private async requestMic() {
+		try {
+			await this.recorder?.requestPermission();
+			console.log("Microphone permission granted");
+		} catch (error: unknown) {
+			console.error("Unable to request microphone permission", error);
+		}
+	}
+
 	private async openMic() {
-		if (this.openingTurnInFlight || this.micEnabled || this.recordingRequest || !this.recorder) {
+		if (this.micEnabled || this.recordingRequest || !this.recorder) {
 			return;
 		}
 
@@ -124,15 +131,6 @@ export class GameScene extends Phaser.Scene {
 			console.error("Unable to start microphone recording", error);
 		} finally {
 			this.recordingRequest = null;
-		}
-	}
-
-	private async requestMicrophonePermission() {
-		try {
-			await this.recorder?.requestPermission();
-			console.log("Microphone permission granted");
-		} catch (error: unknown) {
-			console.error("Unable to request microphone permission", error);
 		}
 	}
 
@@ -173,16 +171,16 @@ export class GameScene extends Phaser.Scene {
 			this.messages.push({
 				role: "user",
 				content: [
-						// Audio input. Nemotron Omni expects audio_url content parts.
+					// Audio input. Nemotron Omni expects audio_url content parts.
 					{
-							type: "audio_url",
-							audio_url: { url: `data:audio/wav;base64,${audioBase64}` },
+						type: "audio_url",
+						audio_url: { url: `data:audio/wav;base64,${audioBase64}` },
 					},
 
-						// Current game state
+					// Current game state
 					{
-							type: "text",
-							text: JSON.stringify(this.gameState),
+						type: "text",
+						text: JSON.stringify(this.gameState),
 					}
 				]
 			});
@@ -199,8 +197,6 @@ export class GameScene extends Phaser.Scene {
 			}
 
 			const { message } = await response.json();
-			console.log("Nemotron response:", message);
-
 			const { npcResponse } = JSON.parse(message.content);
 			console.log(`Response: ${npcResponse}`);
 
@@ -211,37 +207,6 @@ export class GameScene extends Phaser.Scene {
 			console.error("Unable to send recording to Nemotron", error);
 		} finally {
 			this.recordingRequest = null;
-		}
-	}
-
-	private async sendOpeningTurn() {
-		this.openingTurnInFlight = true;
-		console.log("Sending opening Nemotron turn", this.messages);
-
-		try {
-			const response = await fetch("/api/nemotron", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ context: this.messages })
-			});
-
-			if (!response.ok) {
-				const errorBody = await response.json().catch(() => null) as { error?: string } | null;
-				throw new Error(errorBody?.error ?? `Opening Nemotron request failed: ${response.status}`);
-			}
-
-			const { message } = await response.json();
-			console.log("Opening Nemotron response:", message);
-			console.log("Opening NPC response:", JSON.parse(message.content).npcResponse);
-			this.messages.push(message as ChatMLMessage);
-			console.log("Opening turn complete; user turn is now enabled", this.messages);
-
-			this.input.keyboard?.on("keydown-SPACE", this.openMic, this);
-			this.input.keyboard?.on("keyup-SPACE", this.closeMic, this);
-		} catch (error: unknown) {
-			console.error("Unable to send opening Nemotron turn", error);
-		} finally {
-			this.openingTurnInFlight = false;
 		}
 	}
 

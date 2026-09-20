@@ -4,6 +4,8 @@ export interface MicRecorderOptions {
 	onChunk?: (chunk: Float32Array) => void;
 }
 
+let microphonePermission: Promise<void> | null = null;
+
 export class MicRecorder {
 	private readonly sampleRate: number;
 	private readonly samplesPerChunk: number;
@@ -41,8 +43,13 @@ export class MicRecorder {
 	}
 
 	async requestPermission() {
-		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-		stream.getTracks().forEach((track) => track.stop());
+		if (!microphonePermission) {
+			microphonePermission = navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+				stream.getTracks().forEach((track) => track.stop());
+			});
+		}
+
+		return microphonePermission;
 	}
 
 	async start() {
@@ -54,6 +61,7 @@ export class MicRecorder {
 		this.chunks = [];
 
 		try {
+			await this.requestPermission();
 			this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 			if (!this.recording) {
 				this.stream.getTracks().forEach((track) => track.stop());
