@@ -44,13 +44,22 @@ export async function POST(request: NextRequest) {
 					schema: {
 						type: "object",
 						properties: {
-							internalAssessment: {
-								type: "string",
-								description: "1 to 2 sentences of the NPC's in-character gut reaction. Gauge the player's sincerity, vocal tone, and whether any active traits or weaknesses were triggered before deciding how to react.",
-							},
 							npcResponse: {
 								type: "string",
-								description: "Your response to the player's most recent interaction.",
+								description: "Compatibility field: copy dialogueByOutcome.continue. It is provisional and must never grant or definitively reject the request.",
+							},
+
+							dialogueByOutcome: {
+								type: "object",
+								description: "Four mutually exclusive 1-2 sentence alternatives for the same turn. The game selects exactly one after applying its own score and timeout rules.",
+								properties: {
+									continue: { type: "string", description: "Approval is still pending. Respond to the argument and ask one relevant follow-up without granting or definitively rejecting the request." },
+									win: { type: "string", description: "Assume success has been confirmed. Explicitly grant the actual objective, with no new prerequisite, question, or reversal." },
+									loss: { type: "string", description: "Assume failure has been confirmed. Clearly decline the actual request and close the exchange without inventing evidence." },
+									timeout: { type: "string", description: "Assume time expired without approval. State that the request remains unapproved and close the exchange without a question or invented accusation." },
+								},
+								required: ["continue", "win", "loss", "timeout"],
+								additionalProperties: false,
 							},
 
 							successDelta: {
@@ -68,10 +77,10 @@ export async function POST(request: NextRequest) {
 
 							gameOver: {
 								type: "boolean",
-								description: "Indicates whether the game is over based on the player's most recent interaction.",
+								description: "Whether the model believes its evaluated turn would close the interaction. The game resolves the actual terminal result.",
 							},
 						},
-						required: ["analysis","npcResponse", "successDelta", "progress", "gameOver"],
+												required: ["npcResponse", "dialogueByOutcome", "successDelta", "progress", "gameOver"],
 						additionalProperties: false,
 					},
 				}

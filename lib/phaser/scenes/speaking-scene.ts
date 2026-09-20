@@ -3,6 +3,7 @@ import Phaser from "phaser";
 export class SpeakingScene extends Phaser.Scene {
 	private waveform!: Phaser.GameObjects.Graphics;
 	private speaking: "player" | "ai" | null = null;
+	private finalizing = false;
 	private phase = 0;
 	private roleName = "AI AGENT";
 	private turnText!: Phaser.GameObjects.Text;
@@ -34,6 +35,7 @@ export class SpeakingScene extends Phaser.Scene {
 		const role = this.registry.get("role") as { occupation?: string } | undefined;
 		this.roleName = role?.occupation?.toUpperCase() ?? "AI AGENT";
 		this.game.events.on("game-speaking", this.setSpeaking, this);
+		this.game.events.on("game-finalizing", this.setFinalizing, this);
 		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.destroySpeaking, this);
 	}
 
@@ -50,12 +52,29 @@ export class SpeakingScene extends Phaser.Scene {
 
 	private setSpeaking(speaking: "player" | "ai" | null) {
 		this.speaking = speaking;
-		this.turnText.setText(speaking === "ai" ? `${this.roleName}'S TURN` : "YOUR TURN");
-		this.turnText.setColor(speaking === "ai" ? "#fcd34d" : "#bae6fd");
-		this.hintText.setVisible(speaking !== "ai");
+		this.renderTurn();
+	}
+
+	private setFinalizing(finalizing: boolean) {
+		this.finalizing = finalizing;
+		this.renderTurn();
+	}
+
+	private renderTurn() {
+		if (this.finalizing) {
+			this.turnText.setText("FINAL EVALUATION");
+			this.turnText.setColor("#fcd34d");
+			this.hintText.setVisible(false);
+			return;
+		}
+
+		this.turnText.setText(this.speaking === "ai" ? `${this.roleName}'S TURN` : "YOUR TURN");
+		this.turnText.setColor(this.speaking === "ai" ? "#fcd34d" : "#bae6fd");
+		this.hintText.setVisible(this.speaking !== "ai");
 	}
 
 	private destroySpeaking() {
 		this.game.events.off("game-speaking", this.setSpeaking, this);
+		this.game.events.off("game-finalizing", this.setFinalizing, this);
 	}
 }
