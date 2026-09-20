@@ -5,6 +5,7 @@ import type { Role } from "@/types/types";
 export class CharacterScene extends Phaser.Scene {
 	private characterImage!: Phaser.GameObjects.Image;
 	private thinkingGlow!: Phaser.GameObjects.Graphics;
+	private thoughtBubble!: Phaser.GameObjects.Graphics;
 	private thinking = false;
 	private phase = 0;
 	private targetX = 0;
@@ -25,6 +26,7 @@ export class CharacterScene extends Phaser.Scene {
 	create() {
 		this.thinkingGlow = this.add.graphics();
 		this.thinkingGlow.setDepth(0);
+		this.thoughtBubble = this.add.graphics().setDepth(2);
 		this.characterImage = this.add.image(this.scale.width / 2, this.scale.height / 2, "role-neutral")
 			.setDisplaySize(this.scale.width, this.scale.height);
 		this.characterImage.setDepth(1);
@@ -40,10 +42,21 @@ export class CharacterScene extends Phaser.Scene {
 		this.characterImage.y += (this.scale.height / 2 + this.targetY + thinkingOffset - this.characterImage.y) * 0.08;
 
 		this.thinkingGlow.clear();
+		this.thoughtBubble.clear();
 		if (this.thinking) {
 			const pulse = 0.16 + (Math.sin(this.phase * 2) + 1) * 0.04;
 			this.thinkingGlow.fillStyle(0x7dd3fc, pulse);
 			this.thinkingGlow.fillCircle(this.scale.width / 2, this.scale.height / 2, 250 + Math.sin(this.phase) * 8);
+			const bubbleX = this.scale.width * 0.72;
+			const bubbleY = this.scale.height * 0.18;
+			this.thoughtBubble.fillStyle(0xf8fafc, 0.92);
+			this.thoughtBubble.fillCircle(bubbleX, bubbleY, 42);
+			this.thoughtBubble.fillCircle(bubbleX - 46, bubbleY + 54, 18);
+			this.thoughtBubble.fillCircle(bubbleX - 70, bubbleY + 78, 9);
+			this.thoughtBubble.fillStyle(0x334155, 1);
+			this.thoughtBubble.fillCircle(bubbleX - 14, bubbleY, 5);
+			this.thoughtBubble.fillCircle(bubbleX, bubbleY, 5);
+			this.thoughtBubble.fillCircle(bubbleX + 14, bubbleY, 5);
 		}
 	}
 

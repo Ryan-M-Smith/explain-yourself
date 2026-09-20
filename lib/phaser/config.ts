@@ -10,7 +10,7 @@ export function createPhaserGame(parent: HTMLDivElement) {
 			mode: Phaser.Scale.FIT,
 			autoCenter: Phaser.Scale.CENTER_BOTH,
 		},
-		backgroundColor: "#999999",
+		backgroundColor: "var(--background)",
 		audio: {
 			noAudio: true,
 		},

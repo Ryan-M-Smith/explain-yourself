@@ -72,6 +72,7 @@ export class GameScene extends Phaser.Scene {
 		this.traits = traits.map((category) => {
 			return category.traits[Math.floor(Math.random() * category.traits.length)]
 		});
+		this.registry.set("traits", this.traits);
 
 		this.updateSuccess(this.traits.reduce((sum, trait) => sum + trait.value, 0) / this.traits.length);
 
@@ -146,15 +147,31 @@ export class GameScene extends Phaser.Scene {
 		this.emitProgress();
 	}
 
-	private updateProgress(progress: GameProgress) {
+	private applySuccessDelta(rawDelta: number) {
+		const boundedDelta = Math.max(-1, Math.min(1, rawDelta));
+		if (boundedDelta === 0) {
+			return 0;
+		}
+
+		const magnitude = Math.max(0.015, Math.min(0.20, Math.abs(boundedDelta) * 0.25));
+		const appliedDelta = Math.sign(boundedDelta) * magnitude;
+		console.debug("Applied success delta", { rawDelta, appliedDelta });
+		this.updateSuccess(appliedDelta);
+		return appliedDelta;
+	}
+
+	private updateProgress(progress: GameProgress, modelGameOver = false) {
 		if (this.gameState.success >= 0.95) {
 			this.gameState.progress = GameProgress.Success;
 		} else if (this.gameState.success <= 0.05) {
 			this.gameState.progress = GameProgress.Failure;
-		} else if (progress === GameProgress.Success && this.gameState.success >= 0.8) {
+		} else if ((progress === GameProgress.Success || (modelGameOver && this.gameState.success >= 0.8)) && this.gameState.success >= 0.8) {
 			this.gameState.progress = progress;
-		} else if (progress === GameProgress.Failure && this.gameState.success <= 0.2) {
-			this.gameState.progress = progress;
+			if (modelGameOver && progress !== GameProgress.Success) {
+				this.gameState.progress = GameProgress.Success;
+			}
+		} else if ((progress === GameProgress.Failure || (modelGameOver && this.gameState.success <= 0.2)) && this.gameState.success <= 0.2) {
+			this.gameState.progress = progress === GameProgress.Failure ? progress : GameProgress.Failure;
 		} else if (this.gameState.success >= 0.8) {
 			this.gameState.progress = GameProgress.CanSucceed;
 		} else if (this.gameState.success <= 0.2) {
@@ -309,9 +326,9 @@ export class GameScene extends Phaser.Scene {
 			const modelResponse = this.parseModelResponse(message);
 			this.game.events.emit("game-thinking", false);
 
-			this.updateSuccess(modelResponse.successDelta);
-			this.updateProgress(modelResponse.progress);
-			this.setExpression(modelResponse.successDelta, this.gameState.progress);
+			const appliedDelta = this.applySuccessDelta(modelResponse.successDelta);
+			this.updateProgress(modelResponse.progress, modelResponse.gameOver);
+			this.setExpression(appliedDelta, this.gameState.progress);
 			this.game.events.emit("game-dialogue", this.role?.occupation ?? "Agent", removeToneTags(modelResponse.npcResponse));
 			await this.speakText(removeToneTags(modelResponse.npcResponse), this.role?.voice ?? "");
 			if (message) {
@@ -394,9 +411,9 @@ export class GameScene extends Phaser.Scene {
 
 			const modelResponse = this.parseModelResponse(message);
 			this.game.events.emit("game-thinking", false);
-			this.updateSuccess(modelResponse.successDelta);
-			this.updateProgress(modelResponse.progress);
-			this.setExpression(modelResponse.successDelta, this.gameState.progress);
+			const appliedDelta = this.applySuccessDelta(modelResponse.successDelta);
+			this.updateProgress(modelResponse.progress, modelResponse.gameOver);
+			this.setExpression(appliedDelta, this.gameState.progress);
 			this.game.events.emit("game-dialogue", this.role?.occupation ?? "Agent", removeToneTags(modelResponse.npcResponse));
 			await this.speakText(removeToneTags(modelResponse.npcResponse), this.role?.voice ?? "");
 

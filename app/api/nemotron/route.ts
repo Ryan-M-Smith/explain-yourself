@@ -15,10 +15,22 @@ const openai = new OpenAI({
 	baseURL: "https://integrate.api.nvidia.com/v1",
 });
 
+let requestQueue: Promise<unknown> = Promise.resolve();
+
+function wait(milliseconds: number) {
+	return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function isResourceExhausted(error: unknown) {
+	const providerError = error as { status?: number; code?: string; message?: string };
+	return providerError.status === 503
+		|| providerError.code === "ResourceExhausted"
+		|| providerError.message?.includes("Worker local total request limit");
+}
+
 export async function POST(request: NextRequest) {
 	const { context } = await request.json();
-	
-	try {
+	const runRequest = async () => {
 		const result = await openai.chat.completions.create({
 			model: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
 			messages: context,
@@ -39,7 +51,9 @@ export async function POST(request: NextRequest) {
 
 							successDelta: {
 								type: "number",
-								description: "The change in the likelihood of success (between -1.0 and 1.0) based on the player's most recent interaction.",
+								minimum: -1,
+								maximum: 1,
+								description: "The change in the likelihood of success. Use a measured value: minor interaction changes should be around -0.1 to 0.1; reserve values near -1 or 1 for exceptionally decisive evidence.",
 							},
 
 							progress: {
@@ -61,15 +75,39 @@ export async function POST(request: NextRequest) {
 		}, { stream: false });
 
 		const message = result.choices[0]?.message;
+		return message;
+	};
+
+	const queuedRequest = requestQueue.then(async () => {
+		for (let attempt = 0; attempt < 3; attempt += 1) {
+			try {
+				return await runRequest();
+			} catch (error) {
+				if (!isResourceExhausted(error) || attempt === 2) {
+					throw error;
+				}
+
+				await wait(750 * (attempt + 1));
+			}
+		}
+
+		throw new Error("Nemotron request could not be completed");
+	});
+	requestQueue = queuedRequest.catch(() => undefined);
+
+	try {
+		const message = await queuedRequest;
 		return NextResponse.json({ message });
 	} catch (error) {
 		console.error("Error fetching from Nemotron:", error);
 		const providerError = error as { status?: number; message?: string };
-		const { status, message } = providerError;
-		
+		const resourceExhausted = isResourceExhausted(error);
 		return NextResponse.json(
-			{ error: message ?? "Failed to fetch from Nemotron" },
-			{ status: status ?? 500 },
+			{ error: resourceExhausted ? "Nemotron is busy. Please try again shortly." : providerError.message ?? "Failed to fetch from Nemotron" },
+			{
+				status: resourceExhausted ? 503 : providerError.status ?? 500,
+				headers: resourceExhausted ? { "Retry-After": "3" } : undefined,
+			},
 		);
 	}
 }
