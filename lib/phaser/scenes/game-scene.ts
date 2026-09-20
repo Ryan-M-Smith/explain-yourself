@@ -35,6 +35,9 @@ function removeToneTags(text: string) {
 	return text.replace(/\[[^\]]+\]\s*/g, "").trim();
 }
 
+const VOICE_VOLUME = 0.8;
+const MUSIC_VOLUME = 0.1;
+
 export class GameScene extends Phaser.Scene {
 	private recorder: MicRecorder | null = null;
 	private micEnabled = false;
@@ -47,7 +50,6 @@ export class GameScene extends Phaser.Scene {
 	private readonly maxTalkingTimeMs = 120_000;
 	private voiceAudio: HTMLAudioElement | null = null;
 	private musicAudio: HTMLAudioElement | null = null;
-	private musicFadeFrame?: number;
 	private audioPlaybackReject?: (reason?: unknown) => void;
 	private pendingAudioUrl: string | null = null;
 	private gameOverEmitted = false;
@@ -127,8 +129,7 @@ export class GameScene extends Phaser.Scene {
 		void this.requestMic();
 		this.input.on(Phaser.Input.Events.POINTER_DOWN, this.unlockAudio, this);
 		this.input.keyboard?.on("keydown", this.unlockAudio, this);
-		void this.startMusic();
-		void this.startOpeningTurn();
+		void this.startMusic().finally(() => this.startOpeningTurn());
 		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.destroyRecorder, this);
 	}
 
@@ -481,8 +482,8 @@ export class GameScene extends Phaser.Scene {
 		this.audioPlaybackReject?.(new Error("Audio playback interrupted by a new response"));
 		this.voiceAudio?.pause();
 		this.voiceAudio = new Audio(audioUrl);
-		this.voiceAudio.volume = 1;
-		this.setMusicDucked(true);
+		this.voiceAudio.preload = "auto";
+		this.voiceAudio.volume = VOICE_VOLUME;
 
 		try {
 			await new Promise<void>((resolve, reject) => {
@@ -538,37 +539,7 @@ export class GameScene extends Phaser.Scene {
 
 			URL.revokeObjectURL(audioUrl);
 			throw error;
-		} finally {
-			this.setMusicDucked(false);
 		}
-	}
-
-	private setMusicDucked(ducked: boolean) {
-		if (!this.musicAudio) {
-			return;
-		}
-
-		if (this.musicFadeFrame !== undefined) {
-			cancelAnimationFrame(this.musicFadeFrame);
-		}
-
-		const music = this.musicAudio;
-		const startVolume = music.volume;
-		const targetVolume = ducked ? 0.10 : 0.18;
-		const startedAt = performance.now();
-		const fadeDuration = 220;
-		const animateVolume = (now: number) => {
-			const progress = Math.min((now - startedAt) / fadeDuration, 1);
-			const easedProgress = progress * progress * (3 - 2 * progress);
-			music.volume = startVolume + (targetVolume - startVolume) * easedProgress;
-			if (progress < 1 && this.musicAudio === music) {
-				this.musicFadeFrame = requestAnimationFrame(animateVolume);
-			} else {
-				this.musicFadeFrame = undefined;
-			}
-		};
-
-		this.musicFadeFrame = requestAnimationFrame(animateVolume);
 	}
 
 	private audioDebugState() {
@@ -591,10 +562,6 @@ export class GameScene extends Phaser.Scene {
 			URL.revokeObjectURL(this.pendingAudioUrl);
 			this.pendingAudioUrl = null;
 		}
-		if (this.musicFadeFrame !== undefined) {
-			cancelAnimationFrame(this.musicFadeFrame);
-			this.musicFadeFrame = undefined;
-		}
 		this.musicAudio?.pause();
 		this.musicAudio = null;
 		void this.recorder?.stop();
@@ -604,8 +571,9 @@ export class GameScene extends Phaser.Scene {
 	private async startMusic() {
 		if (!this.musicAudio && this.role?.music) {
 			this.musicAudio = new Audio(this.role.music);
+			this.musicAudio.preload = "auto";
 			this.musicAudio.loop = true;
-			this.musicAudio.volume = 0.18;
+			this.musicAudio.volume = MUSIC_VOLUME;
 		}
 
 		if (!this.musicAudio || !this.musicAudio.paused) {
