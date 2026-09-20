@@ -29,6 +29,22 @@ export class MicRecorder {
 		return this.chunks;
 	}
 
+	get recordedSampleCount() {
+		return this.chunks.reduce((total, chunk) => total + chunk.length, 0);
+	}
+
+	get peakAmplitude() {
+		return this.chunks.reduce(
+			(peak, chunk) => Math.max(peak, ...chunk.map((sample) => Math.abs(sample))),
+			0,
+		);
+	}
+
+	async requestPermission() {
+		const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		stream.getTracks().forEach((track) => track.stop());
+	}
+
 	async start() {
 		if (this.recording) {
 			return;
@@ -56,7 +72,7 @@ export class MicRecorder {
 			this.processor = new AudioWorkletNode(this.audioContext, "mic-processor", {
 				channelCount: 1,
 				processorOptions: {
-					sampleRate: this.sampleRate,
+					targetSampleRate: this.sampleRate,
 					samplesPerChunk: this.samplesPerChunk,
 				},
 			});

@@ -1,7 +1,7 @@
 class MicProcessor extends AudioWorkletProcessor {
 	constructor({ processorOptions }) {
 		super();
-		this.targetSampleRate = processorOptions.targetSampleRate;
+		this.sampleRate = processorOptions.targetSampleRate;
 		this.samplesPerChunk = processorOptions.samplesPerChunk;
 		this.pending = [];
 	}
@@ -12,7 +12,7 @@ class MicProcessor extends AudioWorkletProcessor {
 			return true;
 		}
 
-		const ratio = sampleRate / this.targetSampleRate;
+		const ratio = sampleRate / this.sampleRate;
 		for (let index = 0; index < input.length; index += 1) {
 			const sourceIndex = index * ratio;
 			const lowerIndex = Math.floor(sourceIndex);

@@ -8,9 +8,16 @@
 import type OpenAI from "openai";
 import { GameProgress } from "./enums";
 
+type ChatMLContentPart =
+	| OpenAI.Chat.Completions.ChatCompletionContentPart
+	| {
+		type: "audio_url";
+		audio_url: { url: string };
+	};
+
 interface ChatMLMessage {
 	role: "user" | "system" | "assistant";
-	content: string | OpenAI.Chat.Completions.ChatCompletionContentPart[];
+	content: string | ChatMLContentPart[];
 }
 
 interface Theme {

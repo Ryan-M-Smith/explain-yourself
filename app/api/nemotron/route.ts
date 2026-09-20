@@ -77,6 +77,13 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json({ message });
 	} catch (error) {
 		console.error("Error fetching from Nemotron:", error);
-		return NextResponse.json({ error: "Failed to fetch from Nemotron" }, { status: 500 });
+		const providerError = error as { status?: number; message?: string };
+		const status = providerError.status && providerError.status >= 400 && providerError.status < 600
+			? providerError.status
+			: 500;
+		return NextResponse.json(
+			{ error: providerError.message ?? "Failed to fetch from Nemotron" },
+			{ status },
+		);
 	}
 }
