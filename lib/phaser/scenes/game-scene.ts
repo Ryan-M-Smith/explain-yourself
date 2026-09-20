@@ -240,8 +240,8 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private async unlockAudio() {
-		void this.startMusic();
 		if (!this.pendingAudioUrl) {
+			void this.startMusic();
 			return;
 		}
 
@@ -484,6 +484,8 @@ export class GameScene extends Phaser.Scene {
 		this.voiceAudio = new Audio(audioUrl);
 		this.voiceAudio.preload = "auto";
 		this.voiceAudio.volume = VOICE_VOLUME;
+		const resumeMusic = this.musicAudio !== null && !this.musicAudio.paused;
+		this.musicAudio?.pause();
 
 		try {
 			await new Promise<void>((resolve, reject) => {
@@ -539,6 +541,10 @@ export class GameScene extends Phaser.Scene {
 
 			URL.revokeObjectURL(audioUrl);
 			throw error;
+		} finally {
+			if (resumeMusic) {
+				void this.startMusic();
+			}
 		}
 	}
 
