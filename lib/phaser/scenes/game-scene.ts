@@ -32,7 +32,7 @@ function blobToBase64(blob: Blob) {
 }
 
 function removeToneTags(text: string) {
-	return text.replace(/\[[^\]]+\]\s*/g, "").trim();
+	return text.replace(/\[[^\]]+\]\s*/g, "").replace(/"/g, "").trim();
 }
 
 const VOICE_VOLUME = 0.8;

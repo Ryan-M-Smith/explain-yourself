@@ -44,6 +44,10 @@ export async function POST(request: NextRequest) {
 					schema: {
 						type: "object",
 						properties: {
+							internalAssessment: {
+								type: "string",
+								description: "1 to 2 sentences of the NPC's in-character gut reaction. Gauge the player's sincerity, vocal tone, and whether any active traits or weaknesses were triggered before deciding how to react.",
+							},
 							npcResponse: {
 								type: "string",
 								description: "Your response to the player's most recent interaction.",
@@ -67,7 +71,7 @@ export async function POST(request: NextRequest) {
 								description: "Indicates whether the game is over based on the player's most recent interaction.",
 							},
 						},
-						required: ["npcResponse", "successDelta", "progress", "gameOver"],
+						required: ["analysis","npcResponse", "successDelta", "progress", "gameOver"],
 						additionalProperties: false,
 					},
 				}
