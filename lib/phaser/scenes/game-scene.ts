@@ -227,8 +227,8 @@ export class GameScene extends Phaser.Scene {
 
 		const normalizedMagnitude = Math.abs(boundedDelta);
 		const magnitude = Math.max(
-			0.015,
-			Math.min(0.35, normalizedMagnitude * 0.22 + normalizedMagnitude ** 2 * 0.28),
+			0.05,
+			Math.min(0.40, normalizedMagnitude * 0.45 + normalizedMagnitude ** 2 * 0.15),
 		);
 		const appliedDelta = Math.sign(boundedDelta) * magnitude;
 		console.debug("Applied success delta", { rawDelta, appliedDelta });
