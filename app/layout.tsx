@@ -12,6 +12,7 @@ import { JSX } from "react";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import "./globals.css";
+import "@/lib/ui/endings/ending-screen.css";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
