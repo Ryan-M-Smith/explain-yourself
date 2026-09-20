@@ -15,7 +15,7 @@ import { CharacterScene } from "@/lib/phaser/scenes/character-scene";
 import { DialogueScene } from "@/lib/phaser/scenes/dialogue-scene";
 import { ProgressScene } from "@/lib/phaser/scenes/progress-scene";
 import { SpeakingScene } from "@/lib/phaser/scenes/speaking-scene";
-import { EndScene } from "./end-scene";
+import { EndScene } from "@/lib/phaser/scenes/end-scene";
 import { backgroundArtPath, roleArtPath, type RoleExpression } from "@/lib/phaser/art";
 import type { EndingActionContext, EndingScreenData } from "@/lib/ui/endings/ending-screen";
 
