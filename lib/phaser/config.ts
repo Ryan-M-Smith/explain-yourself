@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { GameScene } from "./scenes/game-scene";
+import { SplashScene } from "./scenes/splash-scene";
 
 export function createPhaserGame(parent: HTMLDivElement) {
 	return new Phaser.Game({
@@ -14,7 +15,7 @@ export function createPhaserGame(parent: HTMLDivElement) {
 		audio: {
 			noAudio: true,
 		},
-		scene: GameScene,
+		scene: [SplashScene, GameScene],
 		parent: parent,
 	});
 }

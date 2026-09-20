@@ -49,6 +49,8 @@ export class GameScene extends Phaser.Scene {
 	private audioPlaybackReject?: (reason?: unknown) => void;
 	private pendingAudioUrl: string | null = null;
 	private gameOverEmitted = false;
+	private readonly maxContextMessages = 8;
+	private readonly systemMessageCount = 2;
 	
 	private messages: ChatMLMessage[] = [];
 	private role: Role | null = null;
@@ -153,7 +155,11 @@ export class GameScene extends Phaser.Scene {
 			return 0;
 		}
 
-		const magnitude = Math.max(0.015, Math.min(0.20, Math.abs(boundedDelta) * 0.25));
+		const normalizedMagnitude = Math.abs(boundedDelta);
+		const magnitude = Math.max(
+			0.015,
+			Math.min(0.35, normalizedMagnitude * 0.22 + normalizedMagnitude ** 2 * 0.28),
+		);
 		const appliedDelta = Math.sign(boundedDelta) * magnitude;
 		console.debug("Applied success delta", { rawDelta, appliedDelta });
 		this.updateSuccess(appliedDelta);
@@ -192,6 +198,13 @@ export class GameScene extends Phaser.Scene {
 			this.gameOverEmitted = true;
 			this.game.events.emit("game-over", this.gameState.progress, this.gameState.success);
 		}
+	}
+
+	private appendMessage(message: ChatMLMessage) {
+		this.messages.push(message);
+		const systemMessages = this.messages.slice(0, this.systemMessageCount);
+		const conversationMessages = this.messages.slice(this.systemMessageCount).slice(-(this.maxContextMessages - this.systemMessageCount));
+		this.messages = [...systemMessages, ...conversationMessages];
 	}
 
 	private setExpression(successDelta: number, progress: GameProgress) {
@@ -332,7 +345,7 @@ export class GameScene extends Phaser.Scene {
 			this.game.events.emit("game-dialogue", this.role?.occupation ?? "Agent", removeToneTags(modelResponse.npcResponse));
 			await this.speakText(removeToneTags(modelResponse.npcResponse), this.role?.voice ?? "");
 			if (message) {
-				this.messages.push(message as ChatMLMessage);
+				this.appendMessage(message as ChatMLMessage);
 			}
 
 			if (!this.isGameOver()) {
@@ -377,7 +390,7 @@ export class GameScene extends Phaser.Scene {
 		
 		try {
 			this.game.events.emit("game-thinking", true);
-			this.messages.push({
+			this.appendMessage({
 				role: "user",
 				content: [
 					// Audio input. Nemotron Omni expects audio_url content parts.
@@ -418,7 +431,7 @@ export class GameScene extends Phaser.Scene {
 			await this.speakText(removeToneTags(modelResponse.npcResponse), this.role?.voice ?? "");
 
 			if (message) {
-				this.messages.push(message as ChatMLMessage);
+				this.appendMessage(message as ChatMLMessage);
 			}
 
 			if (this.isGameOver()) {
