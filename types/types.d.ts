@@ -35,6 +35,7 @@ interface Role {
 interface Trait {
 	name: string;
 	value: number;
+	weakness: string;
 }
 
 interface GameState {
