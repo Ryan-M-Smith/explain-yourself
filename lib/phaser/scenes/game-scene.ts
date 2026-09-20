@@ -46,6 +46,7 @@ export class GameScene extends Phaser.Scene {
 	private recordingTimer?: Phaser.Time.TimerEvent;
 	private readonly maxTalkingTimeMs = 120_000;
 	private voiceAudio: HTMLAudioElement | null = null;
+	private musicAudio: HTMLAudioElement | null = null;
 	private audioPlaybackReject?: (reason?: unknown) => void;
 	private pendingAudioUrl: string | null = null;
 	private gameOverEmitted = false;
@@ -125,6 +126,7 @@ export class GameScene extends Phaser.Scene {
 		void this.requestMic();
 		this.input.on(Phaser.Input.Events.POINTER_DOWN, this.unlockAudio, this);
 		this.input.keyboard?.on("keydown", this.unlockAudio, this);
+		void this.startMusic();
 		void this.startOpeningTurn();
 		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.destroyRecorder, this);
 	}
@@ -236,6 +238,7 @@ export class GameScene extends Phaser.Scene {
 	}
 
 	private async unlockAudio() {
+		void this.startMusic();
 		if (!this.pendingAudioUrl) {
 			return;
 		}
@@ -555,10 +558,29 @@ export class GameScene extends Phaser.Scene {
 			URL.revokeObjectURL(this.pendingAudioUrl);
 			this.pendingAudioUrl = null;
 		}
+		this.musicAudio?.pause();
+		this.musicAudio = null;
 		void this.recorder?.stop();
 		this.recorder = null;
 	}
 
+	private async startMusic() {
+		if (!this.musicAudio && this.role?.music) {
+			this.musicAudio = new Audio(this.role.music);
+			this.musicAudio.loop = true;
+			this.musicAudio.volume = 0.18;
+		}
+
+		if (!this.musicAudio || !this.musicAudio.paused) {
+			return;
+		}
+
+		try {
+			await this.musicAudio.play();
+		} catch (error: unknown) {
+			console.debug("Background music is waiting for user interaction", error);
+		}
+	}
 	private nextSituation() {
 		if (!this.isGameOver()) {
 			return;

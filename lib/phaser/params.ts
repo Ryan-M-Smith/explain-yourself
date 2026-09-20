@@ -13,6 +13,7 @@ export const roles: Role[] = [
 		location: "Club",
 		sex: "male",
 		voice: "fcKUtkdHcmtm9FSmoVEI",
+		music: "/assets/music/bouncer.mp3",
 		background: "The player is attempting to gain entry into your exclusive club despite not having an invitation or being listed on the guest roster.",
 	},
 
@@ -21,6 +22,7 @@ export const roles: Role[] = [
 		location: "Tech Lounge",
 		sex: "female",
 		voice: "jjHH5Uog9ASkoZHP28lh",
+		music: "/assets/music/angel-investor.mp3",
 		background: "The player is attempting to pitch their startup to you in the hopes of securing financial investment.",
 	},
 
@@ -29,6 +31,7 @@ export const roles: Role[] = [
 		location: "Museum",
 		sex: "male",
 		voice: "6l5FIY6jqEciWS9XWIBt",
+		music: "/assets/music/night-guard.mp3",
 		background: "The player is attempting to access or remain inside the museum exhibits after official operating hours.",
 	},
 
@@ -37,6 +40,7 @@ export const roles: Role[] = [
 		location: "University",
 		sex: "female",
 		voice: "gWY0RXRlI1QmPQepsLJY",
+		music: "/assets/music/professor.mp3",
 		background: "The player is attempting to discuss their academic standing and make a case for why you should award them an \"A\" despite having failed the exam.",
 	},
 
@@ -45,6 +49,7 @@ export const roles: Role[] = [
 		location: "Hotel Lobby",
 		sex: "male",
 		voice: "c5T7LPp7BPPHdlUcb8aL",
+		music: "/assets/music/hotel-clerk.mp3",
 		background: "The player is attempting to secure an accommodation with you after being informed that the hotel has no vacancies.",
 	},
 
@@ -53,6 +58,7 @@ export const roles: Role[] = [
 		location: "Military Base",
 		sex: "female",
 		voice: "g6ZoAMrkIQHrDV3xjOkh",
+		music: "/assets/music/guard-soldier.mp3",
 		background: "The player is attempting to pass through your security checkpoint and enter the military installation without presenting identification.",
 	},
 
@@ -61,6 +67,7 @@ export const roles: Role[] = [
 		location: "Apartment Office",
 		sex: "male",
 		voice: "ZeNWnonn1KoouoeGdYY8",
+		music: "/assets/music/landlord.mp3",
 		background: "The player is attempting to negotiate staying in their unit after being issued an eviction notice for unpaid rent.",
 	},
 
@@ -69,6 +76,7 @@ export const roles: Role[] = [
 		location: "Police Station",
 		sex: "female",
 		voice: "xtLLAvXjljYI0LWnf5eC",
+		music: "/assets/music/interrogator.mp3",
 		background: "The player is attempting to provide an explanation and establish their innocence to you after being brought in for questioning regarding a crime.",
 	},
 
@@ -77,6 +85,7 @@ export const roles: Role[] = [
 		location: "Corporate Office",
 		sex: "male",
 		voice: "ubAKj3cbERpE9iYS5goZ",
+		music: "/assets/music/job-interviewer.mp3",
 		background: "The player is attempting to demonstrate their qualifications to you in order to be selected for the open role.",
 	},
 	
@@ -85,6 +94,7 @@ export const roles: Role[] = [
 		location: "Restaurant",
 		sex: "male",
 		voice: "t9V1dZNCnzV3EXzhDAEg",
+		music: "/assets/music/waiter.mp3",
 		background: "The player is attempting to present reasons to you for why the cost of their meal should be waived.",
 	},
 ] as const;

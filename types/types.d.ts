@@ -26,7 +26,7 @@ interface Role {
 	background: string;
 	sex: "male" | "female";
 	voice: string;
-	audioPath?: string;
+	music?: string;
 }
 
 /**

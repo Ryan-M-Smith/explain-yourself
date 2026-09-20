@@ -8,7 +8,7 @@ function slug(value: string) {
 
 export function backgroundArtPath(role: Role) {
 	const folder = slug(role.location);
-	return `/assets/${folder}/${folder}-background-16x9-1920x1080.png`;
+	return `/assets/environments/${folder}/${folder}-background-16x9-1920x1080.png`;
 }
 
 export function roleArtPath(role: Role, expression: RoleExpression) {
@@ -20,5 +20,5 @@ export function roleArtPath(role: Role, expression: RoleExpression) {
 			? "original-1672x941"
 			: "16x9-1920x1080";
 
-	return `/assets/${folder}/${occupation}-${expression}-${dimensions}.png`;
+	return `/assets/environments/${folder}/${occupation}-${expression}-${dimensions}.png`;
 }
