@@ -207,8 +207,31 @@ export class GameScene extends Phaser.Scene {
 	private appendMessage(message: ChatMLMessage) {
 		this.messages.push(message);
 		const systemMessages = this.messages.slice(0, this.systemMessageCount);
-		const conversationMessages = this.messages.slice(this.systemMessageCount).slice(-(this.maxContextMessages - this.systemMessageCount));
-		this.messages = [...systemMessages, ...conversationMessages];
+		const conversationMessages = this.messages.slice(this.systemMessageCount);
+		const pendingUserMessage = conversationMessages.at(-1)?.role === "user"
+			? conversationMessages.at(-1)
+			: undefined;
+		const messagesToPair = pendingUserMessage ? conversationMessages.slice(0, -1) : conversationMessages;
+		const pairs: ChatMLMessage[][] = [];
+
+		for (let index = messagesToPair.length - 1; index > 0; index -= 1) {
+			if (messagesToPair[index - 1].role === "user" && messagesToPair[index].role === "assistant") {
+				pairs.unshift(messagesToPair.slice(index - 1, index + 1));
+				index -= 1;
+			}
+		}
+
+		const availableConversationMessages = this.maxContextMessages - this.systemMessageCount;
+		const maxPairs = Math.floor((availableConversationMessages - (pendingUserMessage ? 1 : 0)) / 2);
+		let retainedConversation = pairs.slice(-maxPairs).flat();
+
+		if (pendingUserMessage) {
+			retainedConversation = [...retainedConversation, pendingUserMessage];
+		} else if (retainedConversation.length === 0 && conversationMessages.length > 0) {
+			retainedConversation = [conversationMessages.at(-1)!];
+		}
+
+		this.messages = [...systemMessages, ...retainedConversation];
 	}
 
 	private setExpression(successDelta: number, progress: GameProgress) {
@@ -370,12 +393,25 @@ export class GameScene extends Phaser.Scene {
 			throw new Error("Nemotron returned an empty response");
 		}
 
-		return JSON.parse(message.content) as {
+		const response = JSON.parse(message.content) as {
 			npcResponse: string;
 			successDelta: number;
 			progress: GameProgress;
 			gameOver: boolean;
 		};
+
+		if (response.npcResponse.trim().startsWith("{")) {
+			try {
+				const nestedResponse = JSON.parse(response.npcResponse) as Partial<typeof response>;
+				if (typeof nestedResponse.npcResponse === "string") {
+					response.npcResponse = nestedResponse.npcResponse;
+				}
+			} catch {
+				// Keep ordinary dialogue that happens to contain braces.
+			}
+		}
+
+		return response;
 	}
 
 	private async sendAudio() {
